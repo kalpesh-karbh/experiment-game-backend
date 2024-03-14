@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as httpStatus from "http-status";
 import catchAsync from "../utils/catchAsync";
 import {

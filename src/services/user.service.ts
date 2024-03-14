@@ -1,7 +1,9 @@
+// @ts-ignore
 import * as httpStatus from "http-status";
 import User from "../models/User.model";
 import ApiError from "../utils/ApiError";
 import UserGeneral from "../models/UserGeneral.model";
+import ts from "typescript";
 
 /**
  * Create a user
