@@ -3,6 +3,9 @@ import * as mongoose from "mongoose";
 import { app } from "./app";
 import config from "./config/config";
 import logger from "./config/logger";
+import { insertDefaultArmyData } from "./models/Army.model";
+import { insertDefaultResourceData } from "./models/Resource.model";
+import { insertDefaultDefenseData } from "./models/Defense.model";
 
 // @ts-ignore
 
@@ -14,6 +17,9 @@ const main = async () => {
     .connect(config.mongoose.url)
     .then(() => {
       console.log("--database connection successful--");
+      insertDefaultArmyData();
+      insertDefaultResourceData();
+      insertDefaultDefenseData();
     })
     .catch((err) => {
       console.log(err.message);

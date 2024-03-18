@@ -1,4 +1,3 @@
-// @ts-nocheck
 import express, { Request, Response } from "express";
 import session from "express-session";
 const crypto = require("crypto");
@@ -18,7 +17,14 @@ import routes from "./routes/v1";
 import User from "./models/User.model";
 var cookieParser = require("cookie-parser");
 import { generateAuthTokens } from "./services/token.service";
-import { createUserGeneral, getUserById } from "./services/user.service";
+import {
+  createUserArmy,
+  createUserCity,
+  createUserDefense,
+  createUserGeneral,
+  createUserResource,
+  getUserById,
+} from "./services/user.service";
 
 const app = express();
 
@@ -31,7 +37,7 @@ app.use(express.urlencoded({ extended: true }));
 // Add express-session middleware
 app.use(
   session({
-    secret: "flusteredbot", // Set your own secret key
+    secret: "flustered", // Set your own secret key
     resave: false,
     secure: false,
     saveUninitialized: false,
@@ -94,9 +100,8 @@ passport.serializeUser((user, done) => {
 });
 
 // Deserialize user
-passport.deserializeUser(async (id, done) => {
+passport.deserializeUser(async (user, done) => {
   try {
-    const user = await User.findById(id);
     done(null, user);
   } catch (err) {
     done(err, null);
@@ -114,10 +119,29 @@ app.get(
   async (req: Request, res: Response) => {
     const { user }: any = req;
     const authUser = user.user;
-    const general = await createUserGeneral(authUser._id);
-    await User.findByIdAndUpdate(user._id, { userGeneral: general._id });
+
+    // Create user general
+    await createUserGeneral(authUser._id);
+
+    // Create user resources
+    await createUserResource(authUser._id);
+
+    // Create user armies
+    await createUserArmy(authUser._id);
+
+    // Create user defenses
+    await createUserDefense(user._id);
+
+    // Create user city
+    await createUserCity(user._id);
+
+    // Generate authentication token
     const token = await generateAuthTokens(authUser);
+
+    // Get authenticated user data
     const userData = await getUserById(authUser._id);
+
+    // Send response
     res.status(httpStatus.OK).send({
       status: httpStatus.OK,
       message: "login successful",

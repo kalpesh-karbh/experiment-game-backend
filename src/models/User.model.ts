@@ -16,8 +16,6 @@ export interface IUser extends Document {
   apple_id: string | null;
   facebook_id: string | null;
   isPasswordMatch: (password: string) => Promise<boolean>;
-  userGeneral: Types.ObjectId | IUserGeneral;
-  UserResource: Types.Array<IUserResource>;
 }
 
 interface UserModel extends Model<IUser> {
@@ -77,8 +75,6 @@ const userSchema = new mongoose.Schema<IUser, UserModel>(
       type: String,
       default: "",
     },
-    userGeneral: { type: Types.ObjectId, ref: "UserGeneral" },
-    UserResource: [{ type: Schema.Types.ObjectId, ref: "UserResource" }],
   },
   {
     timestamps: true,

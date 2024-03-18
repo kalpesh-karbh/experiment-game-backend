@@ -5,27 +5,25 @@ interface IPlacement {
   Y: number;
 }
 
-interface IResourceCount {
+interface ICityCount {
   level: number;
   life: number;
   life_limit: number;
-  coal: number;
-  coal_limit: number;
   gold: number;
   gold_limit: number;
-  production: number;
-  production_limit: number;
+  coal: number;
+  coal_limit: number;
   status: number;
   placement: IPlacement;
 }
 
-export interface IUserResource {
-  type: string; // goldmine, coalmine, bank, coal storage, house
+export interface IUserCity {
+  type: string;
   user: any;
-  count: IResourceCount[];
+  count: ICityCount[];
 }
 
-const userResourceSchema = new Schema<IUserResource>(
+const userCitySchema = new Schema<IUserCity>(
   {
     user: { type: Types.ObjectId, ref: "User", required: true },
     type: { type: String, required: true },
@@ -34,12 +32,10 @@ const userResourceSchema = new Schema<IUserResource>(
         level: { type: Number, required: true, default: 1 },
         life: { type: Number, required: false, default: 0 },
         life_limit: { type: Number, required: false, default: 0 },
-        coal: { type: Number, required: false, default: 0 },
-        coal_limit: { type: Number, required: false, default: 0 },
         gold: { type: Number, required: false, default: 0 },
         gold_limit: { type: Number, required: false, default: 0 },
-        production: { type: Number, required: false, default: 0 },
-        production_limit: { type: Number, required: false, default: 0 },
+        coal: { type: Number, required: false, default: 0 },
+        coal_limit: { type: Number, required: false, default: 0 },
         status: { type: Number, required: false, default: 0 },
         placement: {
           X: { type: Number, required: false, default: 0 },
@@ -52,12 +48,8 @@ const userResourceSchema = new Schema<IUserResource>(
 );
 
 // Indexes
-userResourceSchema.index({ user: 1, type: 1 });
+userCitySchema.index({ user: 1, type: 1 });
 
-const UserResource = model<IUserResource>(
-  "UserResource",
-  userResourceSchema,
-  "user_resources"
-);
+const UserCity = model<IUserCity>("UserCity", userCitySchema, "user_cites");
 
-export default UserResource;
+export default UserCity;

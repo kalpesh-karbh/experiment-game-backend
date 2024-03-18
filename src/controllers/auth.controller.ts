@@ -1,4 +1,3 @@
-// @ts-nocheck
 import * as httpStatus from "http-status";
 import catchAsync from "../utils/catchAsync";
 import {
@@ -7,19 +6,43 @@ import {
   createUserGeneral,
   getGeneralByUserId,
   getUserById,
+  createUserResource,
+  createUserArmy,
+  createUserDefense,
+  createUserCity,
 } from "../services/user.service";
 import { generateAuthTokens, removeToken } from "../services/token.service";
 import User from "../models/User.model";
 
 const register = catchAsync(async (req, res) => {
+  // Create user
   const user = await createUser(req.body);
-  const general = await createUserGeneral(user._id);
-  await User.findByIdAndUpdate(user._id, { userGeneral: general._id });
+
+  // Create user general
+  await createUserGeneral(user._id);
+
+  // Create user armies
+  await createUserArmy(user._id);
+
+  // Create user resources
+  await createUserResource(user._id);
+
+  // Create user defenses
+  await createUserDefense(user._id);
+
+  // Create user city
+  await createUserCity(user._id);
+
+  // Generate authentication token
   const token = await generateAuthTokens(user);
+
+  // Get authenticated user data
   const authUser = await getUserById(user._id);
+
+  // Send response
   res.status(httpStatus.OK).send({
     status: httpStatus.OK,
-    message: "user created successfully",
+    message: "User created successfully",
     user: authUser,
     token,
   });

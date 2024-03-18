@@ -4,6 +4,10 @@ import User from "../models/User.model";
 import ApiError from "../utils/ApiError";
 import UserGeneral from "../models/UserGeneral.model";
 import ts from "typescript";
+import UserResource from "../models/UserResource.model";
+import UserArmy from "../models/UserArmy.model";
+import UserDefense from "../models/UserDefense.model";
+import UserCity from "../models/UserCity.model";
 
 /**
  * Create a user
@@ -12,16 +16,334 @@ import ts from "typescript";
  */
 
 const createUser = async (userBody) => {
-  if (await User.isEmailTaken(userBody.email)) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "Email already taken");
+  try {
+    // Check if email is already taken
+    const isEmailTaken = await User.isEmailTaken(userBody.email);
+    if (isEmailTaken) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "Email already taken");
+    }
+    // Create user
+    const user = await User.create(userBody);
+    return user.toObject();
+  } catch (error) {
+    // Handle errors
+    console.error("Error creating user:", error);
+    throw new ApiError(
+      error.status || httpStatus.INTERNAL_SERVER_ERROR,
+      error.message || "Internal server error"
+    );
   }
-  const usr = await User.create(userBody);
-  return usr.toObject();
 };
 
 const createUserGeneral = async (userId) => {
-  const generalData = await UserGeneral.create({ user: userId });
-  return generalData.toObject();
+  try {
+    // Create user general
+    const generalData = await UserGeneral.create({ user: userId });
+    return generalData.toObject();
+  } catch (error) {
+    console.error("Error creating user general:", error);
+    throw new ApiError(
+      error.status || httpStatus.INTERNAL_SERVER_ERROR,
+      error.message || "Internal server error"
+    );
+  }
+};
+
+const createUserResource = async (userId) => {
+  try {
+    const userResourcesData = [
+      {
+        type: "House",
+        user: userId,
+        count: [
+          {
+            level: 1,
+            life: 250,
+            life_limit: 250,
+            coal: 0,
+            coal_limit: 0,
+            gold: 0,
+            gold_limit: 0,
+            production: 0,
+            production_limit: 0,
+            status: 100,
+            placement: { X: 10, Y: 20 },
+          },
+          {
+            level: 1,
+            life: 250,
+            life_limit: 250,
+            coal: 0,
+            coal_limit: 0,
+            gold: 0,
+            gold_limit: 0,
+            production: 0,
+            production_limit: 0,
+            status: 100,
+            placement: { X: 10, Y: 20 },
+          },
+        ],
+      },
+      {
+        type: "Coal Mine",
+        user: userId,
+        count: [
+          {
+            level: 1,
+            life: 400,
+            life_limit: 400,
+            coal: 0,
+            coal_limit: 500,
+            gold: 0,
+            gold_limit: 0,
+            production: 200,
+            production_limit: 0,
+            status: 100,
+            placement: { X: 10, Y: 20 },
+          },
+        ],
+      },
+      {
+        type: "Coal Storage",
+        user: userId,
+        count: [
+          {
+            level: 1,
+            life: 400,
+            life_limit: 400,
+            coal: 0,
+            coal_limit: 1500,
+            gold: 0,
+            gold_limit: 0,
+            production: 0,
+            production_limit: 0,
+            status: 100,
+            placement: { X: 10, Y: 20 },
+          },
+        ],
+      },
+      {
+        type: "Bank",
+        user: userId,
+        count: [
+          {
+            level: 1,
+            life: 400,
+            life_limit: 400,
+            coal: 0,
+            coal_limit: 0,
+            gold: 0,
+            gold_limit: 1500,
+            production: 0,
+            production_limit: 0,
+            status: 100,
+            placement: { X: 10, Y: 20 },
+          },
+        ],
+      },
+      {
+        type: "Gold Mine",
+        user: userId,
+        count: [
+          {
+            level: 1,
+            life: 450,
+            life_limit: 450,
+            coal: 0,
+            coal_limit: 0,
+            gold: 0,
+            gold_limit: 1000,
+            production: 400,
+            production_limit: 0,
+            status: 100,
+            placement: { X: 10, Y: 20 },
+          },
+        ],
+      },
+    ];
+
+    const createdResources = [];
+    for (const resourceData of userResourcesData) {
+      const createdResource = await UserResource.create(resourceData);
+      createdResources.push(createdResource);
+    }
+
+    return createdResources;
+  } catch (error) {
+    console.error("Error creating user resources:", error);
+    throw new ApiError(
+      error.status || httpStatus.INTERNAL_SERVER_ERROR,
+      error.message || "Internal server error"
+    );
+  }
+};
+
+const createUserArmy = async (userId) => {
+  try {
+    const userArmyData = [
+      {
+        type: "Fall In!",
+        user: userId,
+        count: [
+          {
+            level: 1,
+            life: 400,
+            life_limit: 400,
+            total_troops: 0,
+            total_troops_limit: 20,
+            status: 100,
+            placement: { X: 10, Y: 20 },
+          },
+        ],
+      },
+      {
+        type: "Barracks",
+        user: userId,
+        count: [
+          {
+            level: 1,
+            life: 250,
+            life_limit: 250,
+            status: 100,
+            placement: { X: 10, Y: 20 },
+          },
+        ],
+      },
+      {
+        type: "Training Camp",
+        user: userId,
+        count: [],
+      },
+      {
+        type: "Command Center",
+        user: userId,
+        count: [
+          {
+            level: 1,
+            life: 250,
+            life_limit: 250,
+            status: 100,
+            placement: { X: 10, Y: 20 },
+          },
+        ],
+      },
+      {
+        type: "Hangar",
+        user: userId,
+        count: [],
+      },
+    ];
+
+    const createdArmies = [];
+    for (const armiesData of userArmyData) {
+      const createdArmy = await UserArmy.create(armiesData);
+      createdArmies.push(createdArmy);
+    }
+
+    return createdArmies;
+  } catch (error) {
+    console.error("Error creating user armies:", error);
+    throw new ApiError(
+      error.status || httpStatus.INTERNAL_SERVER_ERROR,
+      error.message || "Internal server error"
+    );
+  }
+};
+
+const createUserDefense = async (userId) => {
+  try {
+    const userDefenseData = [
+      {
+        type: "Lance Cannon",
+        user: userId,
+        count: [
+          {
+            level: 1,
+            life: 400,
+            life_limit: 400,
+            attack_power: 0,
+            attack_power_limit: 75,
+            attack_range: 18,
+            type_of_damage: "Galactic laser",
+            target_type: "Ground",
+            status: 100,
+            placement: { X: 10, Y: 20 },
+          },
+        ],
+      },
+      {
+        type: "Ramparts",
+        user: userId,
+        count: [],
+      },
+      {
+        type: "Mud Cannon",
+        user: userId,
+        count: [],
+      },
+      {
+        type: "Traps",
+        user: userId,
+        count: [],
+      },
+      {
+        type: "Garrison",
+        user: userId,
+        count: [],
+      },
+      {
+        type: "StrongHold",
+        user: userId,
+        count: [],
+      },
+    ];
+
+    const createdDefenses = [];
+    for (const defensesData of userDefenseData) {
+      const createdDefense = await UserDefense.create(defensesData);
+      createdDefenses.push(createdDefense);
+    }
+
+    return createdDefenses;
+  } catch (error) {
+    console.error("Error creating user defenses:", error);
+    throw new ApiError(
+      error.status || httpStatus.INTERNAL_SERVER_ERROR,
+      error.message || "Internal server error"
+    );
+  }
+};
+
+const createUserCity = async (userId) => {
+  try {
+    const userCityData = {
+      type: "City",
+      user: userId,
+      count: [
+        {
+          level: 1,
+          life: 1500,
+          life_limit: 1500,
+          gold: 0,
+          gold_limit: 5000,
+          coal: 0,
+          coal_limit: 5000,
+          status: 100,
+          placement: { X: 10, Y: 20 },
+        },
+      ],
+    };
+
+    const createdDefense = await UserCity.create(userCityData);
+
+    return createdDefense;
+  } catch (error) {
+    console.error("Error creating user city:", error);
+    throw new ApiError(
+      error.status || httpStatus.INTERNAL_SERVER_ERROR,
+      error.message || "Internal server error"
+    );
+  }
 };
 
 const getGeneralByUserId = async (id) => {
@@ -34,13 +356,53 @@ const getGeneralByUserId = async (id) => {
  * @returns {Promise<User>}
  */
 const getUserById = async (id) => {
-  return User.findById(id)
-    .select("-password -createdAt -updatedAt -__v")
-    .populate({
-      path: "userGeneral",
-      select: "-_id -user -createdAt -updatedAt -__v", // Exclude specified fields
-    })
-    .lean();
+  try {
+    // Fetch user data excluding sensitive fields
+    const userData = await User.findById(id)
+      .select("-password -createdAt -updatedAt -__v")
+      .lean();
+
+    // Fetch userGeneral data
+    const userGeneral = await UserGeneral.findOne({ user: id })
+      .select("-_id -user -createdAt -updatedAt -__v")
+      .lean();
+
+    // Fetch userResource data
+    const userResources = await UserResource.find({ user: id })
+      .select("-user -createdAt -updatedAt -__v")
+      .lean();
+
+    // Fetch userArmy data
+    const userArmies = await UserArmy.find({ user: id })
+      .select("-user -createdAt -updatedAt -__v")
+      .lean();
+
+    // Fetch userDefenses data
+    const userDefenses = await UserDefense.find({ user: id })
+      .select("-user -createdAt -updatedAt -__v")
+      .lean();
+
+    // Fetch userCities data
+    const userCities = await UserCity.find({ user: id })
+      .select("-user -createdAt -updatedAt -__v")
+      .lean();
+
+    // Attach userGeneral and userResources to userData
+    const data = {
+      ...userData,
+      user_general: userGeneral,
+      user_resources: userResources,
+      user_armies: userArmies,
+      user_defenses: userDefenses,
+      user_city: userCities,
+    };
+
+    return data;
+  } catch (error) {
+    // Handle errors if any
+    console.error("Error fetching user data:", error);
+    throw error;
+  }
 };
 
 /**
@@ -50,10 +412,6 @@ const getUserById = async (id) => {
  */
 const getUserByEmail = async (email) => {
   return User.findOne({ email });
-};
-
-const getUserByAddress = async (address) => {
-  return User.findOne({ address }).lean();
 };
 
 /**
@@ -112,9 +470,12 @@ export {
   getUserByEmail,
   updateUserById,
   deleteUserById,
-  getUserByAddress,
   searchUsersByName,
   updateUserNameById,
   createUserGeneral,
   getGeneralByUserId,
+  createUserResource,
+  createUserArmy,
+  createUserDefense,
+  createUserCity,
 };
